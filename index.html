@@ -50,7 +50,7 @@
             font-size: 14px;
             color: #444;
         }
-        /* Mapa adaptado grande */
+        /* Mapa grande adaptado */
         #map {
             height: 400px;
             width: 100%;
@@ -87,13 +87,13 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configuración de Supabase con tus credenciales reales
+        // Tus credenciales reales de Supabase
         const SUPABASE_URL = 'https://fayneagagfccrnhxtyly.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheW5lYWdhZ2ZjY3JuaHh0eWx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDg5ODQsImV4cCI6MjEwNzU4NDk4NH0.hnFzJF4pbGkH8OGTXVmi7pVzOATP9IRlGVZB_EALeCY';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Inicializar el mapa centrado en la Ruta 9 Sur
+        // Inicializar el mapa centrado en la Ruta 9 Sur (aprox. Punta Arenas / Leñadura)
         var map = L.map('map').setView([-53.15, -70.91], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
