@@ -87,13 +87,14 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // Configuración de Supabase (reemplaza con tus credenciales gratuitas)
-        const SUPABASE_URL = 'TU_SUPABASE_URL';
-        const SUPABASE_ANON_KEY = 'TU_SUPABASE_ANON_KEY';
+        // Configuración de Supabase con tus credenciales reales
+        const SUPABASE_URL = 'https://fayneagagfccrnhxtyly.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZheW5lYWdhZ2ZjY3JuaHh0eWx5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwMDg5ODQsImV4cCI6MjEwNzU4NDk4NH0.hnFzJF4pbGkH8OGTXVmi7pVzOATP9IRlGVZB_EALeCY';
+        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Inicializar el mapa centrado en la Ruta 9 Sur
-        var map = L.map('map').setView([-53.20, -70.90], 10);
+        var map = L.map('map').setView([-53.15, -70.91], 10);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
@@ -123,7 +124,7 @@
                     } else {
                         busMarker.setLatLng([lat, lon]);
                     }
-                    map.setView([lat, lon], 11);
+                    map.setView([lat, lon], 12);
 
                     document.getElementById('bus-status').innerText = "🚗 Vehículo en movimiento en la ruta";
                     document.getElementById('bus-time').innerText = "Última actualización: " + fecha.toLocaleTimeString();
@@ -134,7 +135,7 @@
             }
         }
 
-        // Consultar cada 15 segundos
+        // Consultar cada 15 segundos automáticamente
         setInterval(obtenerUbicacionBus, 15000);
         obtenerUbicacionBus();
     </script>
