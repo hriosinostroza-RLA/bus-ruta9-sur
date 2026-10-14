@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Dónde viene la Micro? - Ruta 9 Sur</title>
+    <!-- Estilos de Leaflet para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 15px;
+            color: #333;
+            text-align: center;
+        }
+        h1 {
+            font-size: 24px;
+            color: #004080;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        /* Tarjeta de Estado Gigante para Adultos Mayores */
+        .status-card {
+            background-color: #e6f2ff;
+            border: 3px solid #0066cc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .status-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #004080;
+            text-transform: uppercase;
+        }
+        .status-main {
+            font-size: 22px;
+            font-weight: bold;
+            color: #003366;
+            margin: 10px 0;
+        }
+        .status-time {
+            font-size: 13px;
+            color: #555;
+        }
+        /* Mapa adaptado */
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 10px;
+            border: 2px solid #ccc;
+        }
+        .footer {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Micro Ruta 9 Sur</h1>
+    <div class="subtitle">Punta Arenas ⇄ San Juan (Km 36)</div>
+
+    <!-- Panel de Estado Principal -->
+    <div class="status-card">
+        <div class="status-title">Estado Actual del Bus</div>
+        <div id="bus-status" class="status-main">Conectando con el bus...</div>
+        <div id="bus-time" class="status-time">Esperando señal GPS</div>
+    </div>
+
+    <!-- Mapa simplificado -->
+    <div id="map"></div>
+
+    <div class="footer">
+        Proyecto Comunitario - Zona Rural Ruta 9 Sur
+    </div>
+
+    <!-- Librería de Mapas Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Inicializar el mapa centrado en la Ruta 9 Sur (aprox. Km 20)
+        var map = L.map('map').setView([-53.25, -70.90], 10);
+
+        // Capa base de mapa gratuita (OpenStreetMap)
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var busMarker = null;
+
+        // Función para consultar la posición actual desde tu servidor o API de pruebas
+        function actualizarUbicacion() {
+            // Aquí te conectarías a tu API o base de datos (ej. Supabase o Traccar API)
+            // Ejemplo simulado para la prueba:
+            fetch('TU_API_URL_AQUI')
+                .then(response => response.json())
+                .then(data => {
+                    // Supongamos que data trae lat, lon, velocidad y dirección
+                    var lat = data.latitude;
+                    var lon = data.longitude;
+                    var fecha = new Date(data.deviceTime);
+
+                    if (!busMarker) {
+                        busMarker = L.marker([lat, lon]).addTo(map)
+                            .bindPopup('<b>Micro en Ruta</b>').openPopup();
+                    } else {
+                        busMarker.setLatLng([lat, lon]);
+                    }
+                    map.setView([lat, lon], 12);
+
+                    document.getElementById('bus-status').innerText = "🚗 En movimiento hacia San Juan";
+                    document.getElementById('bus-time').innerText = "Última actualización: " + fecha.toLocaleTimeString();
+                })
+                .catch(error => {
+                    console.log("Modo simulación de prueba activo o esperando conexión.");
+                    document.getElementById('bus-status').innerText = "🟢 Bus en ruta (Km 20 aproximado)";
+                    document.getElementById('bus-time').innerText = "Actualizado hace un momento";
+                });
+        }
+
+        // Actualizar cada 15 segundos automáticamente
+        setInterval(actualizarUbicacion, 15000);
+        actualizarUbicacion();
+    </script>
+</body>
+</html>
