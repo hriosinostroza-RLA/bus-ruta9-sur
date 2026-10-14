@@ -72,8 +72,8 @@
     <!-- Panel de Estado Principal -->
     <div class="status-card">
         <div class="status-title">Estado Actual del Bus</div>
-        <div id="bus-status" class="status-main">Cargando posición...</div>
-        <div id="bus-time" class="status-time">Sincronizando GPS...</div>
+        <div id="bus-status" class="status-main">Conectando al sistema en vivo...</div>
+        <div id="bus-time" class="status-time">Esperando movimiento en la ruta...</div>
     </div>
 
     <!-- Mapa -->
@@ -93,8 +93,8 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Inicializar el mapa centrado en la Ruta 9 Sur (aprox. Punta Arenas / Leñadura)
-        var map = L.map('map').setView([-53.15, -70.91], 10);
+        // Inicializar el mapa centrado en la Ruta 9 Sur
+        var map = L.map('map').setView([-53.15, -70.91], 11);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 18,
@@ -103,41 +103,45 @@
 
         var busMarker = null;
 
-        async function obtenerUbicacionBus() {
-            try {
-                let { data, error } = await supabaseClient
-                    .from('ubicacion_bus')
-                    .select('*')
-                    .eq('id', 1)
-                    .single();
+        function actualizarUI(data) {
+            var lat = data.latitude;
+            var lon = data.longitude;
+            var fecha = new Date(data.updated_at);
 
-                if (error) throw error;
-
-                if (data) {
-                    var lat = data.latitude;
-                    var lon = data.longitude;
-                    var fecha = new Date(data.updated_at);
-
-                    if (!busMarker) {
-                        busMarker = L.marker([lat, lon]).addTo(map)
-                            .bindPopup('<b>Micro en Ruta 9 Sur</b>').openPopup();
-                    } else {
-                        busMarker.setLatLng([lat, lon]);
-                    }
-                    map.setView([lat, lon], 12);
-
-                    document.getElementById('bus-status').innerText = "🚗 Vehículo en movimiento en la ruta";
-                    document.getElementById('bus-time').innerText = "Última actualización: " + fecha.toLocaleTimeString();
-                }
-            } catch (err) {
-                console.error("Error al obtener datos:", err);
-                document.getElementById('bus-status').innerText = "🟢 Sistema activo (Esperando señal)";
+            if (!busMarker) {
+                busMarker = L.marker([lat, lon]).addTo(map)
+                    .bindPopup('<b>Micro en Ruta 9 Sur (En Vivo)</b>').openPopup();
+            } else {
+                busMarker.setLatLng([lat, lon]);
             }
+            map.setView([lat, lon], 13);
+
+            document.getElementById('bus-status').innerText = "🚗 Vehículo en movimiento hacia San Juan";
+            document.getElementById('bus-time').innerText = "Última actualización: " + fecha.toLocaleTimeString();
         }
 
-        // Consultar cada 15 segundos automáticamente
-        setInterval(obtenerUbicacionBus, 15000);
-        obtenerUbicacionBus();
+        // 1. Cargar la posición actual al abrir la página
+        async function cargarPosicionInicial() {
+            let { data, error } = await supabaseClient
+                .from('ubicacion_bus')
+                .select('*')
+                .eq('id', 1)
+                .single();
+
+            if (data) {
+                actualizarUI(data);
+            }
+        }
+        cargarPosicionInicial();
+
+        // 2. Escuchar cambios en tiempo real (Realtime) sin necesidad de recargar la página
+        supabaseClient
+            .channel('cambios-ubicacion')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'ubicacion_bus', filter: 'id=eq.1' }, payload => {
+                console.log('Nueva posición recibida:', payload.new);
+                actualizarUI(payload.new);
+            })
+            .subscribe();
     </script>
 </body>
 </html>
